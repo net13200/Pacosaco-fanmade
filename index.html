@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+<title>Embrace</title>
+<meta name="description" content="Embrace — a chess game where nothing is ever captured. Pieces pair up, set off chain reactions, and you win by embracing the enemy king." />
+<meta name="theme-color" content="#fef6e4" />
+<link rel="manifest" href="manifest.webmanifest" />
+<link rel="icon" href="icons/icon.svg" type="image/svg+xml" />
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="default" />
+<meta name="apple-mobile-web-app-title" content="Embrace" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;800&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<!-- ========== Menu ========== -->
+<section id="menu" class="screen">
+  <div class="menu-inner">
+    <img class="logo" src="icons/icon.svg" alt="" width="104" height="104" />
+    <h1 class="title">Embrace</h1>
+    <p class="tagline">Chess where nobody gets captured.</p>
+
+    <button id="btn-continue" class="btn btn-primary" hidden>Continue game</button>
+
+    <div class="card">
+      <div class="card-title">Play the computer</div>
+      <div class="seg" role="radiogroup" aria-label="Difficulty" data-name="level">
+        <button role="radio" data-value="easy">Relaxed</button>
+        <button role="radio" data-value="normal">Tricky</button>
+      </div>
+      <div class="seg" role="radiogroup" aria-label="Your pieces" data-name="color">
+        <button role="radio" data-value="w">Light</button>
+        <button role="radio" data-value="random">Random</button>
+        <button role="radio" data-value="b">Dark</button>
+      </div>
+      <button id="btn-ai" class="btn btn-primary">Start</button>
+    </div>
+
+    <button id="btn-local" class="btn">Two players, one phone</button>
+    <button id="btn-rules" class="btn btn-ghost">How to play</button>
+
+    <button id="btn-install" class="btn btn-install" hidden>Install app</button>
+    <p id="ios-hint" class="hint" hidden>To install: tap <b>Share</b>, then <b>Add to Home Screen</b>.</p>
+  </div>
+</section>
+
+<!-- ========== Game ========== -->
+<section id="game" class="screen" hidden>
+  <header class="topbar">
+    <button id="btn-back" class="icon-btn" aria-label="Back to menu">
+      <svg viewBox="0 0 24 24"><path d="M15 5 L8 12 L15 19" /></svg>
+    </button>
+    <div id="mode-label" class="mode-label"></div>
+    <button id="btn-help" class="icon-btn" aria-label="How to play">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" /><path d="M9.6 9.3 C9.8 7.8 10.9 7 12.2 7 C13.7 7 14.8 8 14.8 9.3 C14.8 11.4 12 11.4 12 13.6" /><circle class="dot" cx="12" cy="17" r="0.6" /></svg>
+    </button>
+  </header>
+
+  <div class="middle">
+    <div class="player top" id="player-top"></div>
+    <div id="board" role="grid" aria-label="Game board"></div>
+    <div class="player bottom" id="player-bottom"></div>
+    <div id="status" class="status" aria-live="polite"></div>
+  </div>
+
+  <nav class="controls">
+    <button id="btn-undo" class="btn btn-small">Undo</button>
+    <button id="btn-flip" class="btn btn-small">Flip board</button>
+    <button id="btn-restart" class="btn btn-small">New game</button>
+  </nav>
+</section>
+
+<!-- ========== Result ========== -->
+<div id="result" class="overlay" hidden>
+  <div class="sheet">
+    <div id="result-icon" class="result-icon"></div>
+    <h2 id="result-title"></h2>
+    <p id="result-text"></p>
+    <button id="btn-again" class="btn btn-primary">Play again</button>
+    <button id="btn-result-menu" class="btn">Menu</button>
+    <button id="btn-result-view" class="btn btn-ghost">View board</button>
+  </div>
+</div>
+
+<!-- ========== Rules ========== -->
+<div id="rules" class="overlay" hidden>
+  <div class="sheet rules-sheet">
+    <h2>How to play</h2>
+    <ol class="rules-list">
+      <li><b>It starts like chess.</b> Same board, same pieces, same moves. But nothing is ever captured.</li>
+      <li><b>Hug.</b> Move onto a lone enemy piece and the two pieces become a <span class="pair-word">pair</span> on that square.</li>
+      <li><b>Pairs are shared.</b> On your turn you can move a pair by moving <i>your</i> piece in it, using that piece's move. Its partner comes along. Pairs only move to empty squares.</li>
+      <li><b>Chain reactions.</b> Move a lone piece onto a pair and it takes the place of your piece there. The piece that gets bumped out has to move right away. It can land on an empty square, hug a lone enemy, or bump into another pair and keep the chain going.</li>
+      <li><b>Kings keep to themselves.</b> A king only moves to empty squares. Castling works like chess. There is no check.</li>
+      <li><b>Pawns</b> step forward onto empty squares and move diagonally to hug or bump. A pawn that reaches the far side becomes a queen.</li>
+      <li><b>To win, hug the enemy king.</b> Any of your pieces will do, even one at the end of a chain. Keep your own king covered.</li>
+    </ol>
+    <button id="btn-rules-close" class="btn btn-primary">Got it</button>
+  </div>
+</div>
+
+<script src="rules.js"></script>
+<script src="ai.js"></script>
+<script src="pieces.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
