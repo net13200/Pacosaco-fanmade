@@ -2,6 +2,9 @@
 
 A chess game where nothing is ever captured. Pieces **pair up**, pairs set off **chain reactions**, and you win by **hugging the enemy king**.
 
+> **Inspired by [Paco Ŝako](https://boardgamegeek.com/boardgame/232974), the "peace chess" board game designed by Felix Albers.**
+> This is an unofficial fan-made game and isn't affiliated with Paco Ŝako or its creators. If you enjoy it, please buy the original board game to support them. Its pieces really do lock together into pairs.
+
 It's an installable web app (PWA): it works offline and can be added to a phone's home screen.
 
 ## Play

@@ -1,5 +1,5 @@
 /* Embrace — service worker: cache the app shell so it works offline. */
-const CACHE = "embrace-v1";
+const CACHE = "embrace-v2";
 const SHELL = [
   "./",
   "index.html",
