@@ -1,4 +1,4 @@
-/* Embrace — computer opponent. */
+/* Dancing Chess — computer opponent. */
 "use strict";
 
 const AI = (() => {

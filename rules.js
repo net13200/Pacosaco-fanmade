@@ -1,8 +1,8 @@
-/* Embrace — rules engine.
+/* Dancing Chess — rules engine.
  *
  * Board: 64 squares, index = row * 8 + file, row 0 is Black's back rank (top).
  * A square is null (empty) or { w: piece|null, b: piece|null }.
- * When both w and b are set, the square holds a pair (two pieces hugging).
+ * When both w and b are set, the square holds a pair (two pieces dancing together).
  * Piece: { t: "p"|"n"|"b"|"r"|"q"|"k", c: "w"|"b", m: hasMoved }
  */
 "use strict";

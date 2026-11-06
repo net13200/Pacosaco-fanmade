@@ -1,4 +1,4 @@
-/* Embrace — app / UI. */
+/* Dancing Chess — app / UI. */
 "use strict";
 
 (() => {
@@ -289,10 +289,10 @@
       text = st.draw === "repetition" ? "The same position came up three times." : "No moves left to make.";
     } else if (game.mode === "ai") {
       title = st.winner === game.human ? "You win!" : "The computer wins";
-      text = st.winner === game.human ? "You hugged the enemy king." : "Its pieces got to your king first.";
+      text = st.winner === game.human ? "You danced with the enemy king." : "Its pieces got to your king first.";
     } else {
       title = `${COLOR_NAMES[st.winner]} wins!`;
-      text = `${COLOR_NAMES[st.winner]} hugged the ${COLOR_NAMES[other(st.winner)].toLowerCase()} king.`;
+      text = `${COLOR_NAMES[st.winner]} danced with the ${COLOR_NAMES[other(st.winner)].toLowerCase()} king.`;
     }
     $("result-title").textContent = title;
     $("result-text").textContent = text;

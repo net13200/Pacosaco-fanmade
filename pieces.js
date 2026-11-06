@@ -1,4 +1,4 @@
-/* Embrace — piece artwork (original, drawn in a 45×45 box). */
+/* Dancing Chess — piece artwork (original, drawn in a 45×45 box). */
 "use strict";
 
 const Pieces = (() => {

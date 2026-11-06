@@ -1,5 +1,5 @@
-/* Embrace — service worker: cache the app shell so it works offline. */
-const CACHE = "embrace-v2";
+/* Dancing Chess — service worker: cache the app shell so it works offline. */
+const CACHE = "dancing-chess-v3";
 const SHELL = [
   "./",
   "index.html",

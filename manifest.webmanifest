@@ -1,7 +1,7 @@
 {
-  "name": "Embrace — chess without captures",
-  "short_name": "Embrace",
-  "description": "A chess game where nothing is captured: pieces pair up, set off chain reactions, and you win by hugging the enemy king.",
+  "name": "Dancing Chess",
+  "short_name": "Dancing Chess",
+  "description": "A chess game where nothing is captured: pieces pair up to dance, set off chain reactions, and you win by dancing with the enemy king.",
   "id": "./",
   "start_url": "./",
   "scope": "./",
