@@ -8,17 +8,18 @@
   const PREFS_KEY = "embrace.prefs.v1";
   const AI_STEP_MS = 420;
 
-  const HEART =
-    '<svg class="heart" viewBox="0 0 24 24" aria-hidden="true"><path fill="#ff5e8a" stroke="#fff" stroke-width="2" ' +
-    'd="M12 21 C5 16 2 12.5 2 8.6 C2 5.5 4.4 3.3 7.2 3.3 C9.2 3.3 10.9 4.4 12 6 C13.1 4.4 14.8 3.3 16.8 3.3 ' +
-    'C19.6 3.3 22 5.5 22 8.6 C22 12.5 19 16 12 21 Z"/></svg>';
+  // Little music-note badge shown on every dancing pair.
+  const NOTE =
+    '<svg class="note" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="#ff5e8a" stroke="#fff" stroke-width="2"/>' +
+    '<path d="M10 16.2 V7.6 L16 6.2 V14.6" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>' +
+    '<ellipse cx="8.6" cy="16.4" rx="2.1" ry="1.7" fill="#fff"/><ellipse cx="14.6" cy="14.8" rx="2.1" ry="1.7" fill="#fff"/></svg>';
 
   // ---------- state ----------
   let game = null; // { mode: "ai"|"local", level, human, state, history: [states at turn starts], reps: {} }
   let selected = null;
   let busy = false;
   let manualFlip = false;
-  let landed = -1;
+  let moveAnim = null; // { from, to, rookFrom?, rookTo? } — slide the last move into place
   let prefs = { level: "normal", color: "w" };
 
   const store = {
@@ -67,14 +68,13 @@
       if (trail.has(i)) cls.push("trail");
       if (i === selected && !st.chain) cls.push("selected");
       if (movable.has(i)) cls.push("can-move");
-      if (i === landed) cls.push("landed");
       el.className = cls.join(" ");
 
       let html = "";
       const sq = st.board[i];
       if (sq) {
         if (sq.w && sq.b) {
-          html += `<div class="piece-holder"><div class="pair">${Pieces.svg(sq.w, "left")}${Pieces.svg(sq.b, "right")}${HEART}</div></div>`;
+          html += `<div class="piece-holder"><div class="pair">${Pieces.svg(sq.w, "left")}${Pieces.svg(sq.b, "right")}${NOTE}</div></div>`;
         } else {
           html += `<div class="piece-holder">${Pieces.svg(sq.w || sq.b)}</div>`;
         }
@@ -98,8 +98,38 @@
     renderPlayers();
     renderStatus();
     $("btn-undo").disabled = busy || !canUndo();
-    landed = -1;
+    if (moveAnim) {
+      slide(moveAnim.from, moveAnim.to);
+      if (moveAnim.rookFrom !== undefined) slide(moveAnim.rookFrom, moveAnim.rookTo);
+      moveAnim = null;
+    }
   }
+
+  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const displayIndex = (i) => (isFlipped() ? 63 - i : i);
+
+  // Slide the piece now drawn on `to` from where it was on `from`, with a little landing bounce.
+  function slide(from, to) {
+    if (reduceMotion || from === to || !cells[0].animate) return;
+    const a = cells[displayIndex(from)].getBoundingClientRect();
+    const b = cells[displayIndex(to)].getBoundingClientRect();
+    const holder = cells[displayIndex(to)].querySelector(".piece-holder");
+    if (!holder) return;
+    const dx = a.left - b.left;
+    const dy = a.top - b.top;
+    holder.classList.add("moving");
+    const anim = holder.animate(
+      [
+        { transform: `translate(${dx}px, ${dy}px) scale(1.08)` },
+        { transform: "translate(0, 0) scale(1.08)", offset: 0.8 },
+        { transform: "translate(0, 0) scale(1)" },
+      ],
+      { duration: 260, easing: "cubic-bezier(0.3, 0.7, 0.3, 1)" }
+    );
+    anim.onfinish = anim.oncancel = () => holder.classList.remove("moving");
+  }
+
+  const animFor = (step) => ({ from: step.from, to: step.to, rookFrom: step.rookFrom, rookTo: step.rookTo });
 
   function freeCount(color) {
     let n = 0;
@@ -116,17 +146,21 @@
     const bottomColor = isFlipped() ? B : W;
     const st = game.state;
     for (const [el, color] of [[$("player-bottom"), bottomColor], [$("player-top"), other(bottomColor)]]) {
-      el.className = "player" + (st.turn === color && !st.winner && !st.draw ? " active" : "") + (el.id === "player-top" ? " top" : " bottom");
+      const free = freeCount(color);
+      el.className = "player" + (st.turn === color && !st.winner && !st.draw ? " active" : "");
       el.innerHTML =
-        `<span class="chip ${color}"></span><span class="name">${playerName(color)}</span>` +
-        `<span class="free">${freeCount(color)} free</span>`;
+        `<span class="avatar">${Pieces.svg({ t: "k", c: color })}</span><span class="name">${playerName(color)}</span>` +
+        `<span class="free">${free} free<span class="meter"><i style="width:${(free / 16) * 100}%"></i></span></span>`;
     }
   }
 
   function renderStatus() {
     const st = game.state;
     const el = $("status");
-    el.classList.toggle("chain", !!st.chain);
+    let tone = "";
+    if (st.winner || st.draw) tone = "done";
+    else if (st.chain) tone = "chain";
+    el.className = "status " + tone;
     if (st.winner) {
       el.textContent = `${playerName(st.winner)} ${game.mode === "ai" && st.winner === game.human ? "win" : "wins"}!`;
     } else if (st.draw) {
@@ -139,6 +173,7 @@
     } else if (!isHumanTurn()) {
       el.textContent = "Computer is thinking…";
     } else if (AI.canWin({ ...st, turn: other(st.turn) })) {
+      el.classList.add("danger");
       el.textContent = game.mode === "ai" ? "Careful — your king is in danger!" : `${COLOR_NAMES[st.turn]}: your king is in danger!`;
     } else {
       el.textContent = game.mode === "ai" ? "Your move" : `${COLOR_NAMES[st.turn]} to move`;
@@ -177,7 +212,7 @@
     if (!st.chain) game.history.push(st);
     game.state = Rules.applyStep(st, step);
     selected = null;
-    landed = step.to;
+    moveAnim = animFor(step);
     buzz(step.kind === "bump" ? [12, 40, 12] : 10);
     afterStep();
   }
@@ -216,7 +251,7 @@
         if (game !== token) return;
         const step = turn.steps[n++];
         game.state = Rules.applyStep(game.state, step);
-        landed = step.to;
+        moveAnim = animFor(step);
         if (n < turn.steps.length) {
           render();
           setTimeout(playNext, AI_STEP_MS);
@@ -299,7 +334,7 @@
     const winner = st.winner || W;
     $("result-icon").innerHTML = st.draw
       ? `<div class="pair">${Pieces.svg({ t: "k", c: W }, "left")}${Pieces.svg({ t: "k", c: B }, "right")}</div>`
-      : `<div class="pair">${Pieces.svg({ t: "q", c: winner }, "left")}${Pieces.svg({ t: "k", c: other(winner) }, "right")}${HEART}</div>`;
+      : `<div class="pair">${Pieces.svg({ t: "q", c: winner }, "left")}${Pieces.svg({ t: "k", c: other(winner) }, "right")}${NOTE}</div>`;
     $("result").hidden = false;
   }
 
